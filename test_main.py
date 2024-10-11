@@ -587,3 +587,39 @@ def test_reformat_data():
     a = reformat_data(input)
     e = {"dict": {"str":[1],"int": [{"set":['a']}, 1, "1", 1, None]}}
     assert e == a
+
+    # nested dict
+    input = {'a': {'a': 1}}
+    a = reformat_data(input)
+    e = {"dict": {"str": [{"dict":{"str":[1]}}]}}
+    assert e == a
+
+    input = {'a': {'a': 1}, 'b': 1}
+    a = reformat_data(input)
+    e = {"dict": {"str": [{"dict":{"str":[1]}}, 1]}}
+    assert e == a
+
+    input = {'a': {'a': {"a": 1}}}
+    a = reformat_data(input)
+    e = {"dict": {"str": [{"dict":{"str":[{"dict":{"str":[1]}}]}}]}}
+    assert e == a
+
+    input = {'a': {'a': {"a": 1}, 'b': {"a"}}}
+    a = reformat_data(input)
+    e = {"dict": {"str": [{"dict":{"str":[{"dict":{"str":[1]}}, {"set":["a"]}]}}]}}
+    assert e == a
+
+    input = {'a': {'a': {"a": [1]}, 'b': {"a"}}}
+    a = reformat_data(input)
+    e = {"dict": {"str": [{"dict":{"str":[{"dict":{"str":[{"list":[1]}]}}, {"set":["a"]}]}}]}}
+    assert e == a
+
+    input = {'a': {'a': {"a": [1]}, 1: {"a"}}}
+    a = reformat_data(input)
+    e = {"dict": {"str": [
+        {"dict": {
+            "str":[{"dict":{"str":[{"list":[1]}]}}],
+            "int": [{"set":["a"]}]
+        }}
+    ]}}
+    assert e == a
