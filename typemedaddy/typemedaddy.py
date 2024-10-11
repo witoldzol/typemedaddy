@@ -156,6 +156,42 @@ def get_value_type(val: Any) -> str:
     else:
         return type(val).__name__
 
+def reformat_data(value: Any) -> dict[str,list[Any]]:
+    result = {}
+    input_type = get_value_type(value)
+    # base case - 'primitive' value
+    print(">"*12)
+    print(f"input ty[pe {input_type}")
+    # init
+    # is it primitive?
+    if input_type not in COLLECTIONS:
+        result[input_type] = value
+        return result
+    elif input_type == 'dict':
+        if input_type not in result:
+            # we create a mapping for k,v of a dict
+            result[input_type] = dict()
+        for k in value.keys():
+            kt = get_value_type(k)
+            if kt not in result[input_type]:
+                result[input_type][kt] = list()
+            if get_value_type(value[k]) in COLLECTIONS:
+                result[input_type][kt].append(reformat_data(value[k]))
+            else:
+                result[input_type][kt].append(value[k])
+    # remaining collections
+        # [1]
+    else:
+        if input_type not in result:
+            result[input_type] = list()
+        for v in value:
+            vt = get_value_type(v)
+            if vt in COLLECTIONS:
+                result[input_type].append(reformat_data(v))
+            else:
+                result[input_type].append(v)
+    return result
+
 def convert_value_to_type(value: Any) -> str:
     input_type = get_value_type(value)
     # base case
