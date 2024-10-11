@@ -156,6 +156,10 @@ def get_value_type(val: Any) -> str:
     else:
         return type(val).__name__
 
+"""
+{'a': 1, 'b': 'wow', 'c' : {1:1}}
+-> {"dict": {"str":[1,'wow', {"dict":{"int":[1]}}]}}
+"""
 def reformat_data(value: Any) -> dict[str,list[Any]]:
     result = {}
     input_type = get_value_type(value)
