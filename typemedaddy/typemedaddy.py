@@ -213,16 +213,32 @@ def traverse_reformatted_data_and_infer_types(input: dict) -> str:
             for v in input[k]:
                 for key_type_value in input[k][v]:
                     dict_key_types.append(get_value_type(key_type_value))
+                # move None to the end
+                found_none = False
+                for idx, x in enumerate(dict_key_types[:]):
+                    if x == 'None':
+                        found_none = True
+                        dict_key_types.pop(idx)
+                if found_none:
+                    dict_key_types.append('None')
                 result += "[" + v + ',' + '|'.join(dict_key_types) + "]"
         ##################
         ###### NON DICT ######
         ##################
         elif k in COLLECTIONS_NO_DICT:
-            list_types = []
+            detected_types = []
             for v in input[k]:
-                list_types.append(get_value_type(v))
-            if list_types:
-                result += "[" + '|'.join(list_types) + "]"
+                detected_types.append(get_value_type(v))
+            # move None to the end
+            found_none = False
+            for idx, x in enumerate(detected_types[:]):
+                if x == 'None':
+                    found_none = True
+                    detected_types.pop(idx)
+            if found_none:
+                detected_types.append('None')
+            if detected_types:
+                result += "[" + '|'.join(detected_types) + "]"
     return result
 
 def convert_value_to_type(value: Any) -> str:

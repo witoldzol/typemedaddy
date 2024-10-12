@@ -748,3 +748,10 @@ def test_traverse_reformatted_data_and_infer_types():
     a = traverse_reformatted_data_and_infer_types(input)
     e = 'set[int|str]'
     assert e == a
+
+#     value = {"a": {None}, "b": {"a"}}
+    input = {"set": [None, "a"]}
+    a = traverse_reformatted_data_and_infer_types(input)
+    e = 'set[str|None]'
+    assert e == a
+
