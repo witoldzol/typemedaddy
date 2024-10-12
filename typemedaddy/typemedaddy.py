@@ -226,7 +226,7 @@ def traverse_reformatted_data_and_infer_types(input: dict) -> str:
         ##################
         #### NON DICT ####
         ##################
-        elif k in COLLECTIONS_NO_DICT:
+        else:
             for v in input[k]:
                 detected_types.append(get_value_type(v))
             none_at_end = move_none_to_end(detected_types)
