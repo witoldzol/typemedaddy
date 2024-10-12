@@ -208,6 +208,8 @@ def traverse_reformatted_data_and_infer_types(input: dict) -> str:
     result = ''
     for k in input:
         result += k
+        if input[k]:
+            result += "["
         # there are two types of keys in dicts- collections
         #                                     - simple types ( including 'USER_CLASS' )
         # if key == dict it will ALWAYS map to another dict which in turn will enumerate keys - this is where we 'dedupe'
@@ -216,22 +218,27 @@ def traverse_reformatted_data_and_infer_types(input: dict) -> str:
         ##################
         ###### DICT ######
         ##################
-        detected_types = []
         if k == 'dict':
-            for v in input[k]:
+            for idx, v in enumerate(input[k]):
+                detected_types = []
                 for key_type_value in input[k][v]:
                     detected_types.append(get_value_type(key_type_value))
                 none_at_end = move_none_to_end(detected_types)
-                result += "[" + v + ',' + '|'.join(none_at_end) + "]"
+                result += v + ',' + '|'.join(none_at_end)
+                # add a separator for every second & non last iteration
+                if len(input[k]) > 1 and idx < len(input[k])-1:
+                    result += '|'
+            result  += "]"
         ##################
         #### NON DICT ####
         ##################
         else:
+            detected_types = []
             for v in input[k]:
                 detected_types.append(get_value_type(v))
             none_at_end = move_none_to_end(detected_types)
             if detected_types:
-                result += "[" + '|'.join(none_at_end) + "]"
+                result += '|'.join(none_at_end) + "]"
     return result
 
 def convert_value_to_type(value: Any) -> str:
