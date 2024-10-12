@@ -163,12 +163,9 @@ def get_value_type(val: Any) -> str:
 def reformat_data(value: Any) -> dict[str,list[Any]]:
     result = {}
     input_type = get_value_type(value)
-    # base case - 'primitive' value
-    # init
-    # is it primitive?
+    # base case - 'primitive' value OR USER_CLASS
     if input_type not in COLLECTIONS:
-        result[input_type] = value
-        return result
+        return value
     elif input_type == 'dict':
         if input_type not in result:
             # we create a mapping for k,v of a dict
@@ -181,6 +178,7 @@ def reformat_data(value: Any) -> dict[str,list[Any]]:
                 result[input_type][kt].append(reformat_data(value[k]))
             else:
                 result[input_type][kt].append(value[k])
+    # non dict collections
     else:
         if input_type not in result:
             result[input_type] = list()

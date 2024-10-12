@@ -10,8 +10,7 @@ from typemedaddy.typemedaddy import (
     convert_value_to_type,
     trace,
     SELF_OR_CLS,
-    update_code_with_types,
-    reformat_data
+    reformat_data,
 )
 
 MODULE_PATH = "typemedaddy.foo"
@@ -565,6 +564,12 @@ class TestIntegration():
     #     expected = {'/home/w/repos/typemedaddy/typemedaddy/foo.py:__init__:6': '    def __init__ (self ,bar :None=None ):\n', '/home/w/repos/typemedaddy/typemedaddy/foo.py:example_function:25': "def example_function (a :['int'|'str'],b :['int'|'str'],foo :['str'|'None']):\n"}
 
 def test_reformat_data():
+    # simple input
+    input = 1
+    a = reformat_data(input)
+    e = 1
+    assert e == a
+
     # lists
     input = [1]
     a = reformat_data(input)
@@ -682,4 +687,24 @@ def test_reformat_data():
                     "int": [{"set":["a"]}]}}]
     }}
     assert e == a
-    
+
+    # USER CLASS input
+    input = 'USER_CLASS|typemedaddy.foo::Foo'
+    a = reformat_data(input)
+    e = 'USER_CLASS|typemedaddy.foo::Foo'
+    assert e == a
+
+    input = [1, 'USER_CLASS|typemedaddy.foo::Foo']
+    a = reformat_data(input)
+    e = {"list": [1, 'USER_CLASS|typemedaddy.foo::Foo']}
+    assert e == a
+
+    input = {'a': 'USER_CLASS|typemedaddy.foo::Foo'}
+    a = reformat_data(input)
+    e = {"dict": {'str': ['USER_CLASS|typemedaddy.foo::Foo']}}
+    assert e == a
+
+    input = {'a': 'USER_CLASS|typemedaddy.foo::Foo', 1: 'USER_CLASS|typemedaddy.foo::Foo'}
+    a = reformat_data(input)
+    e = {"dict": {'str': ['USER_CLASS|typemedaddy.foo::Foo'], 'int': ['USER_CLASS|typemedaddy.foo::Foo']}}
+    assert e == a
