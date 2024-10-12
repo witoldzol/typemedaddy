@@ -222,7 +222,10 @@ def traverse_reformatted_data_and_infer_types(input: dict) -> str:
             for idx, v in enumerate(input[k]):
                 detected_types = []
                 for key_type_value in input[k][v]:
-                    detected_types.append(get_value_type(key_type_value))
+                    if get_value_type(key_type_value) in COLLECTIONS:
+                        detected_types.append(traverse_reformatted_data_and_infer_types(key_type_value))
+                    else:
+                        detected_types.append(get_value_type(key_type_value))
                 none_at_end = move_none_to_end(detected_types)
                 result += v + ',' + '|'.join(none_at_end)
                 # add a separator for every second & non last iteration

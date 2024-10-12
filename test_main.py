@@ -729,11 +729,17 @@ def test_traverse_reformatted_data_and_infer_types():
     e = 'dict[str,int|int,int]'
     assert e == a
 
+    input = {"dict": {"str": [{"set": [None, "a"]}]}}
+    a = traverse_reformatted_data_and_infer_types(input)
+    e = 'dict[str,set[str|None]]'
+    assert e == a
+
     input = {"list": []}
     a = traverse_reformatted_data_and_infer_types(input)
     e = 'list'
     assert e == a
 
+    ## SET ##
     input = {"set": []}
     a = traverse_reformatted_data_and_infer_types(input)
     e = 'set'
