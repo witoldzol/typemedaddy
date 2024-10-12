@@ -164,8 +164,6 @@ def reformat_data(value: Any) -> dict[str,list[Any]]:
     result = {}
     input_type = get_value_type(value)
     # base case - 'primitive' value
-    print(">"*12)
-    print(f"input ty[pe {input_type}")
     # init
     # is it primitive?
     if input_type not in COLLECTIONS:
@@ -183,8 +181,6 @@ def reformat_data(value: Any) -> dict[str,list[Any]]:
                 result[input_type][kt].append(reformat_data(value[k]))
             else:
                 result[input_type][kt].append(value[k])
-    # remaining collections
-        # [1]
     else:
         if input_type not in result:
             result[input_type] = list()
