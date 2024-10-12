@@ -190,6 +190,18 @@ def reformat_data(value: Any) -> dict[str,list[Any]]:
                 result[input_type].append(v)
     return result
 
+def move_none_to_end(detected_types: list) -> list:
+    copy = detected_types[:]
+    # move None to the end
+    found_none = False
+    for idx, x in enumerate(copy[:]):
+        if x == 'None':
+            found_none = True
+            copy.pop(idx)
+            if found_none:
+                copy.append('None')
+    return copy
+
 # example input:
 # {"dict": {"str": [1]}}
 def traverse_reformatted_data_and_infer_types(input: dict) -> str:
@@ -208,20 +220,13 @@ def traverse_reformatted_data_and_infer_types(input: dict) -> str:
         ###### DICT ######
         ##################
         if k == 'dict':
-            dict_key_types = []
+            detected_types = []
             # v = str
             for v in input[k]:
                 for key_type_value in input[k][v]:
-                    dict_key_types.append(get_value_type(key_type_value))
-                # move None to the end
-                found_none = False
-                for idx, x in enumerate(dict_key_types[:]):
-                    if x == 'None':
-                        found_none = True
-                        dict_key_types.pop(idx)
-                if found_none:
-                    dict_key_types.append('None')
-                result += "[" + v + ',' + '|'.join(dict_key_types) + "]"
+                    detected_types.append(get_value_type(key_type_value))
+                none_at_end = move_none_to_end(detected_types)
+                result += "[" + v + ',' + '|'.join(none_at_end) + "]"
         ##################
         ###### NON DICT ######
         ##################
@@ -229,16 +234,9 @@ def traverse_reformatted_data_and_infer_types(input: dict) -> str:
             detected_types = []
             for v in input[k]:
                 detected_types.append(get_value_type(v))
-            # move None to the end
-            found_none = False
-            for idx, x in enumerate(detected_types[:]):
-                if x == 'None':
-                    found_none = True
-                    detected_types.pop(idx)
-            if found_none:
-                detected_types.append('None')
+            none_at_end = move_none_to_end(detected_types)
             if detected_types:
-                result += "[" + '|'.join(detected_types) + "]"
+                result += "[" + '|'.join(none_at_end) + "]"
     return result
 
 def convert_value_to_type(value: Any) -> str:
