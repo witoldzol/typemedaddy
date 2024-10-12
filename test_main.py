@@ -556,11 +556,61 @@ class TestIntegration():
         expected = {'/home/w/repos/typemedaddy/typemedaddy/foo.py:__init__:6': '    def __init__ (self ,bar :None=None ):\n', '/home/w/repos/typemedaddy/typemedaddy/foo.py:example_function:25': "def example_function (a :['int'|'str'],b :['int'|'str'],foo :['str'|'None']):\n"}
 
 def test_reformat_data():
+    # lists
     input = [1]
     a = reformat_data(input)
     e = {"list": [1]}
     assert e == a
 
+    input = [1, {1}, {1: 1}]
+    a = reformat_data(input)
+    e = {"list": [1, {"set":[1]}, {"dict": {"int": [1]}}]}
+    assert e == a
+
+    input = [[[[[1]]]]]
+    a = reformat_data(input)
+    e = {"list": [{"list": [{"list": [{"list": [{"list": [1]}]}]}]}]}
+    assert e == a
+
+    # set
+    input = {'a'}
+    a = reformat_data(input)
+    e = {"set": ['a']}
+    assert e == a
+
+    input = {('a',)}
+    a = reformat_data(input)
+    e = {"set": [{"tuple": ['a']}]}
+    assert e == a
+
+    input = {1,'a',('a',)}
+    a = reformat_data(input)
+    e = {"set": [1, 'a', {"tuple": ['a']}]}
+    assert 3 == len(a["set"])
+    assert 1 in a["set"]
+    assert 'a' in a["set"]
+    assert {"tuple": ['a']} in a["set"]
+
+    # tuple
+    input = ('a','b')
+    a = reformat_data(input)
+    e = {"tuple": ['a', 'b']}
+    assert e == a
+
+    input = ('a', {'a': 1})
+    a = reformat_data(input)
+    e = {"tuple": ['a', {"dict":{"str" : [1]}}]}
+    assert e == a
+
+    input = ([{None: None}], None)
+    a = reformat_data(input)
+    e = {"tuple": [{"list": 
+                    [{"dict": {"None": [None]}}]
+                 }, None]
+         }
+    assert e == a
+
+    # dict
     input = {1 : 'a', 'a': 1}
     a = reformat_data(input)
     e = {"dict": {"int": ['a'], "str": [1]}}
@@ -616,10 +666,11 @@ def test_reformat_data():
 
     input = {'a': {'a': {"a": [1]}, 1: {"a"}}}
     a = reformat_data(input)
-    e = {"dict": {"str": [
-        {"dict": {
-            "str":[{"dict":{"str":[{"list":[1]}]}}],
-            "int": [{"set":["a"]}]
-        }}
-    ]}}
+    e = {"dict": {
+            "str": [
+                {"dict": {
+                    "str":[{"dict":{"str":[{"list":[1]}]}}],
+                    "int": [{"set":["a"]}]}}]
+    }}
     assert e == a
+    
