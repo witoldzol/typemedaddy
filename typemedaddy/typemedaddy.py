@@ -190,6 +190,29 @@ def reformat_data(value: Any) -> dict[str,list[Any]]:
                 result[input_type].append(v)
     return result
 
+# example input:
+# {"dict": {"str": [1]}}
+def traverse_reformatted_data_and_infer_types(input: dict) -> str:
+    if get_value_type(input) != 'dict':
+        raise Exception(f"Invalid input. Expected a collection type, got instead : {input}")
+    result = ''
+    # dict
+    for k in input:
+        # there are two types of keys in dicts- collections
+        #                                     - simple types ( including 'USER_CLASS' )
+        # if key == dict it will ALWAYS map to another dict which in turn will enumerate keys - this is where we 'dedupe'
+        # if key == collecion, it will ALWAYS map to an array of values
+        # if key == simple type, that means we are in a dict mapping
+        if k == 'dict':
+            result += k
+            dict_key_types = []
+            # v = str
+            for v in input[k]:
+                for key_type_value in input[k][v]:
+                    dict_key_types.append(get_value_type(key_type_value))
+                result += "[" + v + ',' + ', '.join(dict_key_types) + "]"
+    return result
+
 def convert_value_to_type(value: Any) -> str:
     input_type = get_value_type(value)
     # base case
