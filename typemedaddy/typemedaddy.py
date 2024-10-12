@@ -195,12 +195,19 @@ def reformat_data(value: Any) -> dict[str,list[Any]]:
 def convert_value_to_type(value: Any) -> str:
     input_type = get_value_type(value)
     # base case
+    # value is 'simple', so we can just conver
     if input_type not in COLLECTIONS:
         # hardcoded - special case - self reference arg in methods
         if value == SELF_OR_CLS:
             return value
         else:
             return input_type
+    # if value is a dict, then we can have 'issues' merging complex types
+    # for example:
+#     value = {"a": {None}, "b": {"a"}}
+#     actual = convert_value_to_type(value)
+#     assert "dict[str,set[str|None]]" == actual
+    # we should? then convert the 'data' to a dictonary representation of values, and parse that back into unified type structure
     if input_type == "dict":
         types_found_in_collection = set()
         for k, v in value.items():
@@ -214,6 +221,12 @@ def convert_value_to_type(value: Any) -> str:
         if types_found_in_collection:
             sorted_types = sort_types_none_at_the_end(types_found_in_collection)
             input_type = f"{input_type}[{'|'.join(sorted_types)}]"
+    # same here, non dict collections can also be complex, and require 'merging' of types
+    # example:
+    # [{1},{'a'}]
+    # list[set[int|str]]
+    # instead, at the moment we get - we need to merge types that are on the same 'level'
+    # list[set[int]|set[str]]
     elif input_type in COLLECTIONS_NO_DICT:
         types_found_in_collection = set()
         for v in value:
