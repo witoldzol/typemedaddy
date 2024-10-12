@@ -721,3 +721,13 @@ def test_traverse_reformatted_data_and_infer_types():
     a = traverse_reformatted_data_and_infer_types(input)
     e = 'list'
     assert e == a
+
+    input = {"set": []}
+    a = traverse_reformatted_data_and_infer_types(input)
+    e = 'set'
+    assert e == a
+
+    input = {"set": [1]}
+    a = traverse_reformatted_data_and_infer_types(input)
+    e = 'set[int]'
+    assert e == a

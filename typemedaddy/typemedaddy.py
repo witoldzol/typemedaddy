@@ -215,9 +215,9 @@ def traverse_reformatted_data_and_infer_types(input: dict) -> str:
                     dict_key_types.append(get_value_type(key_type_value))
                 result += "[" + v + ',' + ', '.join(dict_key_types) + "]"
         ##################
-        ###### LIST ######
+        ###### NON DICT ######
         ##################
-        elif k == 'list':
+        elif k in COLLECTIONS_NO_DICT:
             list_types = []
             for v in input[k]:
                 list_types.append(get_value_type(v))
