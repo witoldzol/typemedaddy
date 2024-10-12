@@ -213,7 +213,7 @@ def traverse_reformatted_data_and_infer_types(input: dict) -> str:
             for v in input[k]:
                 for key_type_value in input[k][v]:
                     dict_key_types.append(get_value_type(key_type_value))
-                result += "[" + v + ',' + ', '.join(dict_key_types) + "]"
+                result += "[" + v + ',' + '|'.join(dict_key_types) + "]"
         ##################
         ###### NON DICT ######
         ##################
@@ -222,7 +222,7 @@ def traverse_reformatted_data_and_infer_types(input: dict) -> str:
             for v in input[k]:
                 list_types.append(get_value_type(v))
             if list_types:
-                result += "[" + ', '.join(list_types) + "]"
+                result += "[" + '|'.join(list_types) + "]"
     return result
 
 def convert_value_to_type(value: Any) -> str:
