@@ -198,19 +198,31 @@ def traverse_reformatted_data_and_infer_types(input: dict) -> str:
     result = ''
     # dict
     for k in input:
+        result += k
         # there are two types of keys in dicts- collections
         #                                     - simple types ( including 'USER_CLASS' )
         # if key == dict it will ALWAYS map to another dict which in turn will enumerate keys - this is where we 'dedupe'
         # if key == collecion, it will ALWAYS map to an array of values
         # if key == simple type, that means we are in a dict mapping
+        ##################
+        ###### DICT ######
+        ##################
         if k == 'dict':
-            result += k
             dict_key_types = []
             # v = str
             for v in input[k]:
                 for key_type_value in input[k][v]:
                     dict_key_types.append(get_value_type(key_type_value))
                 result += "[" + v + ',' + ', '.join(dict_key_types) + "]"
+        ##################
+        ###### LIST ######
+        ##################
+        elif k == 'list':
+            list_types = []
+            for v in input[k]:
+                list_types.append(get_value_type(v))
+            if list_types:
+                result += "[" + ', '.join(list_types) + "]"
     return result
 
 def convert_value_to_type(value: Any) -> str:

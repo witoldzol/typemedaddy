@@ -716,3 +716,8 @@ def test_traverse_reformatted_data_and_infer_types():
     a = traverse_reformatted_data_and_infer_types(input)
     e = 'dict[str,int]'
     assert e == a
+
+    input = {"list": []}
+    a = traverse_reformatted_data_and_infer_types(input)
+    e = 'list'
+    assert e == a
