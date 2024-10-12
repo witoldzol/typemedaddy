@@ -202,13 +202,10 @@ def move_none_to_end(detected_types: list) -> list:
                 copy.append('None')
     return copy
 
-# example input:
-# {"dict": {"str": [1]}}
 def traverse_reformatted_data_and_infer_types(input: dict) -> str:
     if get_value_type(input) != 'dict':
         raise Exception(f"Invalid input. Expected a collection type, got instead : {input}")
     result = ''
-    # dict
     for k in input:
         result += k
         # there are two types of keys in dicts- collections
@@ -219,19 +216,17 @@ def traverse_reformatted_data_and_infer_types(input: dict) -> str:
         ##################
         ###### DICT ######
         ##################
+        detected_types = []
         if k == 'dict':
-            detected_types = []
-            # v = str
             for v in input[k]:
                 for key_type_value in input[k][v]:
                     detected_types.append(get_value_type(key_type_value))
                 none_at_end = move_none_to_end(detected_types)
                 result += "[" + v + ',' + '|'.join(none_at_end) + "]"
         ##################
-        ###### NON DICT ######
+        #### NON DICT ####
         ##################
         elif k in COLLECTIONS_NO_DICT:
-            detected_types = []
             for v in input[k]:
                 detected_types.append(get_value_type(v))
             none_at_end = move_none_to_end(detected_types)
