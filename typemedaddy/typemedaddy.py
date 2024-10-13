@@ -221,27 +221,32 @@ def traverse_reformatted_data_and_infer_types(input: dict) -> str:
         if k == 'dict':
             for idx, v in enumerate(input[k]):
                 detected_types = []
+                detected_types = set()
                 for key_type_value in input[k][v]:
                     if get_value_type(key_type_value) in COLLECTIONS:
-                        detected_types.append(traverse_reformatted_data_and_infer_types(key_type_value))
+                        detected_types.add(traverse_reformatted_data_and_infer_types(key_type_value))
                     else:
-                        detected_types.append(get_value_type(key_type_value))
-                none_at_end = move_none_to_end(detected_types)
+                        detected_types.add(get_value_type(key_type_value))
+                none_at_end = move_none_to_end(sorted(detected_types))
                 result += v + ',' + '|'.join(none_at_end)
-                # add a separator for every second & non last iteration
                 if len(input[k]) > 1 and idx < len(input[k])-1:
                     result += '|'
             result  += "]"
         ##################
         #### NON DICT ####
         ##################
-        else:
-            detected_types = []
+        elif k in COLLECTIONS_NO_DICT:
+            detected_types = set()
             for v in input[k]:
-                detected_types.append(get_value_type(v))
-            none_at_end = move_none_to_end(detected_types)
+                if get_value_type(v) in COLLECTIONS:
+                    detected_types.add(traverse_reformatted_data_and_infer_types(v))
+                else:
+                    detected_types.add(get_value_type(v))
+            none_at_end = move_none_to_end(sorted(detected_types))
             if detected_types:
                 result += '|'.join(none_at_end) + "]"
+        else:
+            raise Exception(f'Invalid key type: {k}')
     return result
 
 def convert_value_to_type(value: Any) -> str:
@@ -254,44 +259,9 @@ def convert_value_to_type(value: Any) -> str:
             return value
         else:
             return input_type
-    # if value is a dict, then we can have 'issues' merging complex types
-    # for example:
-#     value = {"a": {None}, "b": {"a"}}
-#     actual = convert_value_to_type(value)
-#     assert "dict[str,set[str|None]]" == actual
-    # we should? then convert the 'data' to a dictonary representation of values, and parse that back into unified type structure
-    if input_type == "dict":
-        types_found_in_collection = set()
-        for k, v in value.items():
-            key_type = get_value_type(k)
-            dict_value_type = get_value_type(v)
-            # collections are not hashable, so they will never be collections
-            if dict_value_type in COLLECTIONS:
-                types_found_in_collection.add(f"{key_type},{convert_value_to_type(v)}")
-            else:
-                types_found_in_collection.add(f"{key_type},{dict_value_type}")
-        if types_found_in_collection:
-            sorted_types = sort_types_none_at_the_end(types_found_in_collection)
-            input_type = f"{input_type}[{'|'.join(sorted_types)}]"
-    # same here, non dict collections can also be complex, and require 'merging' of types
-    # example:
-    # [{1},{'a'}]
-    # list[set[int|str]]
-    # instead, at the moment we get - we need to merge types that are on the same 'level'
-    # list[set[int]|set[str]]
-    elif input_type in COLLECTIONS_NO_DICT:
-        types_found_in_collection = set()
-        for v in value:
-            t = get_value_type(v)
-            if t in COLLECTIONS:
-                types_found_in_collection.add(convert_value_to_type(v))
-            else:
-                types_found_in_collection.add(t)
-        if types_found_in_collection:
-            sorted_types = sort_types_none_at_the_end(types_found_in_collection)
-            input_type = f"{input_type}[{'|'.join(sorted_types)}]"
-    return input_type
-
+    else:
+        transformed_data = reformat_data(value)
+        return traverse_reformatted_data_and_infer_types(transformed_data)
 
 # TODO
 # we probably want to throw some warning saying:
