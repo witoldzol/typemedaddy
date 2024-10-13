@@ -404,14 +404,13 @@ def test_convert_value_to_type():
     actual = convert_value_to_type(value)
     assert "dict[str,int]" == actual
 
-    # todo - to be fixed
-    # value = {"a": [1]}
-    # actual = convert_value_to_type(value)
-    # assert "dict[str,list[int]]" == actual
+    value = {"a": [1]}
+    actual = convert_value_to_type(value)
+    assert "dict[str,list[int]]" == actual
 
-    # value = {"a": [None, [1]]}
-    # actual = convert_value_to_type(value)
-    # assert "dict[str,list[list[int]|None]]" == actual
+    value = {"a": [None, [1]]}
+    actual = convert_value_to_type(value)
+    assert "dict[str,list[list[int]|None]]" == actual
 
     value = {"a": {1}}
     actual = convert_value_to_type(value)
@@ -449,7 +448,7 @@ def test_convert_value_to_type():
     actual = convert_value_to_type(value)
     assert "dict[str,tuple[dict[str,int]]]" == actual
 
-    # todo - this is failing because we haven't been able to figure out how to 'merge' types
+    # # todo - this is failing because we haven't been able to figure out how to 'merge' types
     # value = {"a": {None}, "b": {"a"}}
     # actual = convert_value_to_type(value)
     # assert "dict[str,set[str|None]]" == actual
