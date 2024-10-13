@@ -765,3 +765,8 @@ def test_traverse_reformatted_data_and_infer_types():
     e = 'set[str|None]'
     assert e == a
 
+    ## TUPLE ##
+    input = {"tuple": [None, 'a']}
+    a = traverse_reformatted_data_and_infer_types(input)
+    e = 'tuple[str|None]'
+    assert e == a
