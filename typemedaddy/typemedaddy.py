@@ -220,7 +220,6 @@ def traverse_reformatted_data_and_infer_types(input: dict) -> str:
         ##################
         if k == 'dict':
             for idx, v in enumerate(input[k]):
-                detected_types = []
                 detected_types = set()
                 for key_type_value in input[k][v]:
                     if get_value_type(key_type_value) in COLLECTIONS:
@@ -229,9 +228,12 @@ def traverse_reformatted_data_and_infer_types(input: dict) -> str:
                         detected_types.add(get_value_type(key_type_value))
                 none_at_end = move_none_to_end(sorted(detected_types))
                 result += v + ',' + '|'.join(none_at_end)
+                # add pipe if we have more than 2 elements, and we it is not first or last one
+                # this is for keys, not values !
                 if len(input[k]) > 1 and idx < len(input[k])-1:
                     result += '|'
-            result  += "]"
+            if input[k]:
+                result  += "]"
         ##################
         #### NON DICT ####
         ##################
