@@ -210,8 +210,8 @@ def traverse_reformatted_data_and_infer_types(input: dict) -> str:
         result += k
         if input[k]:
             result += "["
-        # there are two types of keys in dicts- collections
-        #                                     - simple types ( including 'USER_CLASS' )
+        # there are two types of keys (strings) in dicts- collections ex: "dict", "tuple" ...
+        #                                     - simple types ( including 'USER_CLASS' ) ex: "int", "str" ..
         # if key == dict it will ALWAYS map to another dict which in turn will enumerate keys - this is where we 'dedupe'
         # if key == collecion, it will ALWAYS map to an array of values
         # if key == simple type, that means we are in a dict mapping
