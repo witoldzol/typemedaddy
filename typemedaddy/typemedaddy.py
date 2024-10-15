@@ -160,6 +160,7 @@ def get_value_type(val: Any) -> str:
 {'a': 1, 'b': 'wow', 'c' : {1:1}}
 -> {"dict": {"str":[1,'wow', {"dict":{"int":[1]}}]}}
 """
+# {1}
 def reformat_data(value: Any) -> dict[str,list[Any]]:
     result = {}
     input_type = get_value_type(value)
@@ -173,21 +174,60 @@ def reformat_data(value: Any) -> dict[str,list[Any]]:
         for k in value.keys():
             kt = get_value_type(k)
             if kt not in result[input_type]:
-                result[input_type][kt] = list()
+                # result[input_type][kt] = list()
+                result[input_type][kt] = dict()
             if get_value_type(value[k]) in COLLECTIONS:
-                result[input_type][kt].append(reformat_data(value[k]))
+                r = reformat_data(value[k])
+                if type(r) == dict:
+                    for k,v in r.items():
+                        result[input_type][kt][k] = v
+                    # pass
+                elif type(r).__name__ in COLLECTIONS_NO_DICT:
+                    for v in r:
+                        result[input_type][kt][get_value_type(v)] = v
+                else:
+                    result[input_type][kt][get_value_type(r)] = r
+                # result[input_type][kt].append(reformat_data(value[k]))
             else:
-                result[input_type][kt].append(value[k])
+                result[input_type][kt][get_value_type(k)] = k
+                # result[input_type][kt].append(value[k])
     # non dict collections
     else:
+        # list[...]
         if input_type not in result:
-            result[input_type] = list()
+            # result[input_type] = list()
+            # print(f"{v=}")
+
+            result[input_type] = dict()
+        # set(a)
+        # set(1)
         for v in value:
+            # set
+            # set
             vt = get_value_type(v)
             if vt in COLLECTIONS:
-                result[input_type].append(reformat_data(v))
+                # result[input_type].append(reformat_data(v))
+                r = reformat_data(v)
+                if type(r) == dict:
+                    for k,v in r.items():
+                        # print(value)
+                        print("@"*50)
+                        result[input_type][vt] = v
+                    # pass
+                elif type(r).__name__ in COLLECTIONS_NO_DICT:
+                    for x in r:
+                        print("@"*50)
+                        print(f"{result=}")
+                        print(f"{input_type=}")
+                        print(f"{vt=}")
+                        print(f"{get_value_type(x)=}")
+                        result[input_type][vt][get_value_type(x)] = x
+                else:
+                    result[input_type][vt][get_value_type(r)] = r
+                # result[input_type][kt].append(reformat_data(value[k]))
             else:
-                result[input_type].append(v)
+                result[input_type][vt] = v
+                # result[input_type].append(v)
     return result
 
 def move_none_to_end(detected_types: list) -> list:

@@ -8,6 +8,7 @@ from typemedaddy.foo import (
 from typemedaddy.typemedaddy import (
     convert_results_to_types,
     convert_value_to_type,
+    get_value_type,
     trace,
     SELF_OR_CLS,
     reformat_data,
@@ -448,10 +449,10 @@ def test_convert_value_to_type():
     actual = convert_value_to_type(value)
     assert "dict[str,tuple[dict[str,int]]]" == actual
 
-    # # todo - this is failing because we haven't been able to figure out how to 'merge' types
-    # value = {"a": {None}, "b": {"a"}}
-    # actual = convert_value_to_type(value)
-    # assert "dict[str,set[str|None]]" == actual
+    # todo - this is failing because we haven't been able to figure out how to 'merge' types
+    value = {"a": {None}, "b": {"a"}}
+    actual = convert_value_to_type(value)
+    assert "dict[str,set[str|None]]" == actual
 
 # def test_bob():
 #     value = {"a": {None}, "b": {"a"}}
@@ -710,6 +711,12 @@ def test_reformat_data():
     e = {"dict": {'str': ['USER_CLASS|typemedaddy.foo::Foo'], 'int': ['USER_CLASS|typemedaddy.foo::Foo']}}
     assert e == a
 
+    # duplicate type keys + nested values
+    value = {"a": {None}, "b": {"a"}}
+    a = reformat_data(value)
+    e = {'dict': {'str': [{'set': [None, 'a']}]}}
+
+
 def test_traverse_reformatted_data_and_infer_types():
     ### DICTS ###
 
@@ -768,4 +775,10 @@ def test_traverse_reformatted_data_and_infer_types():
     input = {"tuple": [None, 'a']}
     a = traverse_reformatted_data_and_infer_types(input)
     e = 'tuple[str|None]'
+    assert e == a
+
+def test_foo():
+    value = [{'a'},{1}]
+    a = reformat_data(value)
+    e = {'list': {'set': {'None': None, "str": 'a'}}}
     assert e == a
